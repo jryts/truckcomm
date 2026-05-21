@@ -1,0 +1,62 @@
+{
+    "title": "Truck Comm",
+
+    "login": "Log In",
+    "logout": "Log out",
+    "login_fail": "Invalid login credentials",
+
+    "user_id": "User ID",
+    "user_id_required": "User ID is Required",
+
+    "password": "Password",
+    "password_required": "Password is Required",
+    "password_reset": "Forgot Password?",
+    "password_reset_title": "Reset Password",
+    "password_reset_message": "Please contact your trucking department to retrieve or reset the password.",
+
+    "company_id": "Company ID",
+    "company_id_required": "Company ID is Required",
+
+    "trucking": "Trucking",
+    "haulage": "Haulage",
+    "trucking_haulage_required": "Please select Trucking or Haulage",
+
+    "alert_error": "Error",
+    "alert_close": "Ok",
+
+    "en": "English",
+    "zh": "Chinese Simplified",
+
+    "home_page": "Home",
+    "settings_page": "Settings",
+    "changelog_page": "Changelog",
+    "user_guide_page": "User Guide",
+    "chat_page": "Chat",
+    "edms_page": "EDMS File",
+    "item_detail_page": "Item Details",
+    "job_detail_page": "Job Details",
+    "pod_page": "Proof of Delivery",
+
+    "settings_general": "General",
+    "settings_lang": "Language",
+
+    "pickup": "Pickup",
+    "delivery": "Delivery",
+
+    "sent_out_status": "Sent Out",
+    "accepted_status": "Accepted",
+    "complete_pickup_status": "Pickup Completed",
+    "complete_status": "Done",
+    "waiting_pickup_status": "Pickup Waiting",
+    "waiting_delivery_status": "Delivery Waiting",
+    "partial_delivery_status": "Partial Delivery",
+    "partial_pickup_status": "Partial Pickup",
+    "failed_delivery_status": "Delivery Failed",
+    "failed_pickup_status": "Pickup Failed",
+
+    "search": "Search",
+
+    "job_no": "Job Number",
+
+    "pod_image_limit": "Maximum 10 capture"
+}

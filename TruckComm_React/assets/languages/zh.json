@@ -1,0 +1,62 @@
+{
+    "title": "Truck Comm",
+
+    "login": "登录",
+    "logout": "登出",
+    "login_fail": "Invalid login credentials",
+
+    "user_id": "用户 ID",
+    "user_id_required": "请输入用户 ID",
+
+    "password": "密码",
+    "password_required": "请输入密码",
+    "password_reset": "Forgot Password?",
+    "password_reset_title": "Reset Password",
+    "password_reset_message": "Please contact your trucking department to retrieve or reset the password.",
+
+    "company_id": "公司 ID",
+    "company_id_required": "请输入公司 ID",
+
+    "trucking": "Trucking",
+    "haulage": "Haulage",
+    "trucking_haulage_required": "Please select Trucking or Haulage",
+
+    "alert_error": "Error",
+    "alert_close": "Ok",
+
+    "en": "英语",
+    "zh": "简本中文",
+
+    "home_page": "首页",
+    "settings_page": "设置",
+    "changelog_page": "Changelog",
+    "user_guide_page": "User Guide",
+    "chat_page": "Chat",
+    "edms_page": "EDMS File",
+    "item_detail_page": "Item Details",
+    "job_detail_page": "Job Details",
+    "pod_page": "Proof of Delivery",
+
+    "settings_general": "通用",
+    "settings_lang": "语言",
+
+    "pickup": "取件",
+    "delivery": "送货",
+
+    "sent_out_status": "Sent Out",
+    "accepted_status": "Accepted",
+    "complete_pickup_status": "Pickup Completed",
+    "complete_status": "Done",
+    "waiting_pickup_status": "Pickup Waiting",
+    "waiting_delivery_status": "Delivery Waiting",
+    "partial_delivery_status": "Partial Delivery",
+    "partial_pickup_status": "Partial Pickup",
+    "failed_delivery_status": "Delivery Failed",
+    "failed_pickup_status": "Pickup Failed",
+
+    "search": "搜索",
+
+    "job_no": "Job Number",
+
+    "pod_image_limit": "Maximum 10 capture"
+}
