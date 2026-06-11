@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Truckcomm",
-    "slug": "Truckcomm",
+    "slug": "truckcomm",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/app.png",
@@ -13,7 +13,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.innosys.truckcomm",
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
     },
     "android": {
       "permissions": [
@@ -24,14 +32,12 @@
         "FOREGROUND_SERVICE_LOCATION",
         "SYSTEM_ALERT_WINDOW"
       ],
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/app.png",
-        "backgroundColor": "#ffffff"
-      },
       "package": "com.innosys.truckcomm",
       "googleServicesFile": "./google-services.json",
+      "usesCleartextTraffic": true,
       "config": {
         "googleMaps": {
+          "apiKey": "AIzaSyDN-c89aN01ii_y6PNUNEg6GAN91eLS8q0"
         }
       }
     },
@@ -42,25 +48,48 @@
     },
     "plugins": [
       [
-      "expo-build-properties", {
-        "android": {
-          "usesCleartextTraffic": true,
-          "extraMavenRepos": [
-            "../../node_modules/@notifee/react-native/android/libs"
-          ]
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true,
+            "extraMavenRepos": [
+              "../../node_modules/@notifee/react-native/android/libs"
+            ]
+          },
+          "ios": {
+            "useFrameworks": "static",
+            "forceStaticLinking": [
+              "RNFBApp",
+              "RNFBAuth",
+              "RNFBMessaging",
+              "RNFBNotifications"
+            ]
+          }
         }
-      }
       ],
       "expo-router",
       "expo-secure-store",
       "expo-localization",
       "@react-native-firebase/app",
       "@react-native-firebase/messaging",
-      "expo-build-properties"
+      "expo-build-properties",
+      "@react-native-community/datetimepicker",
+      "expo-font",
+      "expo-splash-screen",
+      "expo-sqlite",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
     },
-    "owner": "innosys"
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "bd6adf18-1001-4e6d-939b-8708f419296f"
+      }
+    },
+    "owner": "ipl_dev"
   }
 }

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
@@ -13,27 +14,33 @@ export default function Index() {
             const password = await SecureStore.getItemAsync('Password');
             const companyID = await SecureStore.getItemAsync('Company_ID');
     
-            const response = await fetch(process.env.EXPO_PUBLIC_AUTH_URL, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    "User_ID": username,
-                    "Password": password,
-                    "Company_ID": companyID,
-                    "App_ID": process.env.EXPO_PUBLIC_APP_ID
-                }),
-            });
-            
-            const json = await response.json();
-            
-            if ((json[0]["access"]).toLowerCase() == "success") {
-                await SecureStore.setItemAsync('Auth_Token', json[0]["Auth_Token"]);
-                return true;
+            // Inside your API caller or hook:
+            if (AppState.currentState === 'active') {
+            // Execute fetch safely
+                const response = await fetch(process.env.EXPO_PUBLIC_AUTH_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        "User_ID": username,
+                        "Password": password,
+                        "Company_ID": companyID,
+                        "App_ID": process.env.EXPO_PUBLIC_APP_ID
+                    }),
+                });
+                
+                const json = await response.json();
+                
+                if ((json[0]["access"]).toLowerCase() == "success") {
+                    await SecureStore.setItemAsync('Auth_Token', json[0]["Auth_Token"]);
+                    return true;
+                } else {
+                    return false;
+                }
             } else {
-                return false;
+            // Wait/Listen for AppState to turn 'active' before fetching
             }
         } catch {
             return false;

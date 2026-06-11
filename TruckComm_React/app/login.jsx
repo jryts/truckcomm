@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, View, StyleSheet } from "react-native";
+import { AppState, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, View, StyleSheet } from "react-native";
 import { Avatar, Text, TextInput, HelperText, Button, RadioButton, Portal, Dialog } from "react-native-paper";
 import { useRouter } from "expo-router";
 import * as Application from 'expo-application';
@@ -35,15 +35,33 @@ export default function Login() {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        messaging().getToken()
-        .then(token => {
-            setDeviceToken(token);
-        });
-    
-        messaging().onTokenRefresh(token => {
-            setDeviceToken(token);
-        });
+        getFCMToken();
     }, []);
+
+    const getFCMToken = async () => {
+        // 1. Request permission for notifications
+        const authStatus = await messaging().requestPermission();
+        const enabled =
+            authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+            authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+        if (enabled) {
+            try {
+                // 2. Register the device with APNS/FCM
+                await messaging().registerDeviceForRemoteMessages();
+                
+                // 3. Retrieve the token
+                const token = await messaging().getToken().catch(error => {
+                    console.log('Error fetching FCM token:', error);
+                });
+
+                console.log('FCM Device Token:', token);
+                setDeviceToken(token);
+            } catch (error) {
+                console.log('Error getting token:', error);
+            }
+        }
+    }
 
     const validate = () => {
         if (username.trim() == '') {
@@ -72,43 +90,68 @@ export default function Login() {
     }
 
     const loginServer = async () => {
-        const response = await fetch(process.env.EXPO_PUBLIC_AUTH_URL, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "User_ID": username,
-                "Password": password,
-                "Company_ID": companyID,
-                "App_ID": process.env.EXPO_PUBLIC_APP_ID
-            }),
+        const authURL = process.env.EXPO_PUBLIC_AUTH_URL;
+        const payload = JSON.stringify({
+            "User_ID": username,
+            "Password": password,
+            "Company_ID": companyID,
+            "App_ID": process.env.EXPO_PUBLIC_APP_ID
         });
+        console.log('Login payload:', payload);
+        console.log('Login URL:', authURL);
+        // Inside your API caller or hook:
+        if (AppState.currentState === 'active') {
+            // Execute fetch safely
 
-        const json = await response.json();
+            const response = await fetch(authURL, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: payload,
+            }).catch(error => {
+                // console.log('Login fetch authURL:', fetch.arguments);
+                console.log('Error during login fetch authURL:', error);
+                setLoginHelper(true);
+                setTimeout(() => {
+                    setLoginHelper(false);
+                }, 5000);
+                return;
+            });
 
-        if ((json[0]["access"]).toLowerCase() == "success") {
-            await SecureStore.setItemAsync('Auth_Token', json[0]["Auth_Token"]);
-            await SecureStore.setItemAsync('Auth_Expire', json[0]["Auth_Expire"]);
-            await SecureStore.setItemAsync('Web_Server', json[0]["Web_Server"]);
-            await SecureStore.setItemAsync('Port', json[0]["Port"]);
-            await SecureStore.setItemAsync('Database_Server', json[0]["Database_Server"]);
-            await SecureStore.setItemAsync('Database_Name', json[0]["Database_Name"]);
+            console.log('Login response status:', response);
+            if (!response) {
+                return false;
+            }
+            const json = await response.json();
+            console.log('Login json:', json);
+
+            if ((json[0]["access"]).toLowerCase() == "success") {
+                await SecureStore.setItemAsync('Auth_Token', json[0]["Auth_Token"]);
+                await SecureStore.setItemAsync('Auth_Expire', json[0]["Auth_Expire"]);
+                await SecureStore.setItemAsync('Web_Server', json[0]["Web_Server"]);
+                await SecureStore.setItemAsync('Port', json[0]["Port"]);
+                await SecureStore.setItemAsync('Database_Server', json[0]["Database_Server"]);
+                await SecureStore.setItemAsync('Database_Name', json[0]["Database_Name"]);
+                
+                await SecureStore.setItemAsync('User_ID', username);
+                await SecureStore.setItemAsync('Password', password);
+                await SecureStore.setItemAsync('Company_ID', companyID);
             
-            await SecureStore.setItemAsync('User_ID', username);
-            await SecureStore.setItemAsync('Password', password);
-            await SecureStore.setItemAsync('Company_ID', companyID);
-        
-            return true; 
-        } else {
-            setLoginHelper(true);
-            setTimeout(() => {
-                setLoginHelper(false);
-            }, 5000);
+                return true; 
+            } else {
+                setLoginHelper(true);
+                setTimeout(() => {
+                    setLoginHelper(false);
+                }, 5000);
 
-            return false;
+                return false;
+            }
+        } else {
+        // Wait/Listen for AppState to turn 'active' before fetching
         }
+
     };
 
     const setLoginInfo = async () => {
