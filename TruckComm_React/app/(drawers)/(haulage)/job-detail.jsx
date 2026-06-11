@@ -86,7 +86,7 @@ export default function JobDetail() {
         if (Platform.OS === "ios") {
             params.append("daddr", address);
             params.append("dirflg", "d");
-            openURL("http://maps.apple.com/?" + params);
+            Linking.openURL("http://maps.apple.com/?" + params);
         } else {
             params.append("api", 1);
             params.append("origin", pickupAdd);
