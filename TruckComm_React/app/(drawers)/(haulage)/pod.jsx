@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { View, StyleSheet, FlatList, ImageBackground, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { SafeAreaView, View, StyleSheet, FlatList, ImageBackground, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { Button, Text, TextInput, HelperText, useTheme, Portal, Dialog, Snackbar, Divider, List, IconButton, Avatar, Icon, Modal } from 'react-native-paper';
 import Signature from "react-native-signature-canvas";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -321,132 +321,135 @@ export default function POD() {
     `;
     
     return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.container}
-        >
-            <View style={styles.container}> 
-                <TextInput
-                    label={i18n.t('recipient_name')}
-                    value={text}
-                    onChangeText={text => setText(text)}
-                /> 
-                <HelperText type="error" visible={helperVisible}>
-                    {i18n.t('recipient_required')}
-                </HelperText> 
-                <View style={styles.imgContainer}>
-                    <List.Item title={TitleContent} right={RightContent} />
-                    {
-                        (images.length > 0) ?
-                        <View style={styles.flatListContainer}>
-                            <FlatList
-                                data={images}
-                                renderItem={({item}) => <Item item={item} />}
-                                keyExtractor={(item) => item.id}
-                                horizontal={true}
-                            /> 
-                        </View>
-                        :
-                        <View style={styles.childContainer}>
-                            <Text variant="bodyLarge">{i18n.t('no_pictures')}!</Text>
-                        </View>
-                    }
-                </View>
-                <List.Item title={SigTitleContent} />
-                <View style={styles.sigContainer}>
-                    <Signature webStyle={style}
-                        onOK={(img) => {submitPOD(img)}}
-                        onEmpty={() => {emptyPOD()}}
-                        descriptionText={i18n.t('signature_pad')}
-                        clearText={i18n.t('clear')}
-                        confirmText={i18n.t('submit')}
-                    />
+        <SafeAreaView style={styles.container}>
+            <KeyboardAvoidingView
+                style={styles.container}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0} // Adjust based on header height
+            >
+                <View style={styles.container}> 
+                    <TextInput
+                        label={i18n.t('recipient_name')}
+                        value={text}
+                        onChangeText={text => setText(text)}
+                    /> 
+                    <HelperText type="error" visible={helperVisible}>
+                        {i18n.t('recipient_required')}
+                    </HelperText> 
+                    <View style={styles.imgContainer}>
+                        <List.Item title={TitleContent} right={RightContent} />
+                        {
+                            (images.length > 0) ?
+                            <View style={styles.flatListContainer}>
+                                <FlatList
+                                    data={images}
+                                    renderItem={({item}) => <Item item={item} />}
+                                    keyExtractor={(item) => item.id}
+                                    horizontal={true}
+                                /> 
+                            </View>
+                            :
+                            <View style={styles.childContainer}>
+                                <Text variant="bodyLarge">{i18n.t('no_pictures')}!</Text>
+                            </View>
+                        }
+                    </View>
+                    <List.Item title={SigTitleContent} />
+                    <View style={styles.sigContainer}>
+                        <Signature webStyle={style}
+                            onOK={(img) => {submitPOD(img)}}
+                            onEmpty={() => {emptyPOD()}}
+                            descriptionText={i18n.t('signature_pad')}
+                            clearText={i18n.t('clear')}
+                            confirmText={i18n.t('submit')}
+                        />
+                        <Portal>
+                            <Dialog visible={loading} dismissable={false}>
+                                <Dialog.Icon icon="reload" />
+                                <Dialog.Content>
+                                    <Text variant="bodyLarge" style={styles.title}>
+                                        {i18n.t('submitting')}
+                                    </Text>
+                                </Dialog.Content>
+                            </Dialog>
+                        </Portal>
+                        <Portal>
+                            <Dialog visible={successVisible} dismissable={false}>
+                                <Dialog.Icon icon="check-circle" color="green" />
+                                <Dialog.Content>
+                                    <Text variant="bodyLarge" style={styles.title}>
+                                        {i18n.t('success')}
+                                    </Text>
+                                </Dialog.Content>
+                                <Dialog.Actions>
+                                    <Button onPress={() => router.navigate('/(drawers)/(haulage)/home')}>
+                                        {i18n.t('done')}
+                                    </Button>
+                                </Dialog.Actions>
+                            </Dialog>
+                        </Portal>
+                        <Portal>
+                            <Dialog visible={failedVisible} dismissable={false}>
+                                <Dialog.Icon icon="alert" color="red" />
+                                <Dialog.Content>
+                                    <Text variant="bodyLarge" style={styles.title}>
+                                        {i18n.t('failed')}
+                                    </Text>
+                                </Dialog.Content>
+                                <Dialog.Actions>
+                                    <Button onPress={() => setFailedVisible(false)}>{i18n.t('cancel')}</Button>
+                                    <Button onPress={() => {
+                                        setFailedVisible(false);
+                                        uploadPOD();
+                                    }}>
+                                        {i18n.t('try_again')}
+                                    </Button>
+                                </Dialog.Actions>
+                            </Dialog>
+                        </Portal>
+                    </View>
+                    <Snackbar
+                        visible={snackbarVisible}
+                        onDismiss={onDismissSnackBar}
+                        action={{
+                            label: i18n.t('ok'),
+                            onPress: () => {
+                                onDismissSnackBar
+                            },
+                        }}>
+                        {snackbarText}
+                    </Snackbar>
+                    <Snackbar
+                        visible={undoVisible}
+                        onDismiss={() => setUndoVisible(false)}
+                        action={{
+                            label: i18n.t('undo'),
+                            onPress: () => {
+                                onDismissUndo()
+                            },
+                        }}>
+                        {undoText}
+                    </Snackbar>
                     <Portal>
-                        <Dialog visible={loading} dismissable={false}>
-                            <Dialog.Icon icon="reload" />
-                            <Dialog.Content>
-                                <Text variant="bodyLarge" style={styles.title}>
-                                    {i18n.t('submitting')}
-                                </Text>
-                            </Dialog.Content>
-                        </Dialog>
-                    </Portal>
-                    <Portal>
-                        <Dialog visible={successVisible} dismissable={false}>
-                            <Dialog.Icon icon="check-circle" color="green" />
-                            <Dialog.Content>
-                                <Text variant="bodyLarge" style={styles.title}>
-                                    {i18n.t('success')}
-                                </Text>
-                            </Dialog.Content>
-                            <Dialog.Actions>
-                                <Button onPress={() => router.navigate('/(drawers)/(haulage)/home')}>
-                                    {i18n.t('done')}
-                                </Button>
-                            </Dialog.Actions>
-                        </Dialog>
-                    </Portal>
-                    <Portal>
-                        <Dialog visible={failedVisible} dismissable={false}>
-                            <Dialog.Icon icon="alert" color="red" />
-                            <Dialog.Content>
-                                <Text variant="bodyLarge" style={styles.title}>
-                                    {i18n.t('failed')}
-                                </Text>
-                            </Dialog.Content>
-                            <Dialog.Actions>
-                                <Button onPress={() => setFailedVisible(false)}>{i18n.t('cancel')}</Button>
-                                <Button onPress={() => {
-                                    setFailedVisible(false);
-                                    uploadPOD();
-                                }}>
-                                    {i18n.t('try_again')}
-                                </Button>
-                            </Dialog.Actions>
-                        </Dialog>
-                    </Portal>
-                </View>
-                <Snackbar
-                    visible={snackbarVisible}
-                    onDismiss={onDismissSnackBar}
-                    action={{
-                        label: i18n.t('ok'),
-                        onPress: () => {
-                            onDismissSnackBar
-                        },
-                    }}>
-                    {snackbarText}
-                </Snackbar>
-                <Snackbar
-                    visible={undoVisible}
-                    onDismiss={() => setUndoVisible(false)}
-                    action={{
-                        label: i18n.t('undo'),
-                        onPress: () => {
-                            onDismissUndo()
-                        },
-                    }}>
-                    {undoText}
-                </Snackbar>
-                <Portal>
-                    <Modal visible={visible} onDismiss={hideModal}>
-                        <ImageBackground
-                            style={styles.fullscreen} 
-                            source={{ uri: modalImage.uri }} 
-                            resizeMode='cover'
-                        >
-                            <TouchableOpacity
-                                style={styles.fullscreen}
-                                onPress={() => {
-                                    setVisible(false);
-                                }}
+                        <Modal visible={visible} onDismiss={hideModal}>
+                            <ImageBackground
+                                style={styles.fullscreen} 
+                                source={{ uri: modalImage.uri }} 
+                                resizeMode='cover'
                             >
-                            </TouchableOpacity>
-                        </ImageBackground>
-                    </Modal>
-                </Portal>
-            </View>
-        </KeyboardAvoidingView>
+                                <TouchableOpacity
+                                    style={styles.fullscreen}
+                                    onPress={() => {
+                                        setVisible(false);
+                                    }}
+                                >
+                                </TouchableOpacity>
+                            </ImageBackground>
+                        </Modal>
+                    </Portal>
+                </View>
+            </KeyboardAvoidingView>
+        </SafeAreaView>
     );
 }
 

@@ -214,8 +214,8 @@ const DriverUpdates = () => {
             },
         });
         
-        console.log('response -->', json);
         const json = await response.json();
+        console.log('response -->', json);
         console.log('AIAccessToken json response -->', json.accessToken);
         setAIAccessToken(json.accessToken);
     }

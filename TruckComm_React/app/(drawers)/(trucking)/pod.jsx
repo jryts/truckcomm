@@ -245,14 +245,7 @@ export default function POD() {
             const API_URL = process.env.EXPO_PUBLIC_API_PROTOCOL + '://' 
                 + Web_Server + ':' + Port
                 + process.env.EXPO_PUBLIC_API_ROOT_PATH + 'AddPOD';
-
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
+            const payload = JSON.stringify({
                     "Auth_Token": Auth_Token,
                     "Server_Name": Database_Server,
                     "DB_Name": Database_Name,
@@ -264,6 +257,7 @@ export default function POD() {
                     "POD_Name": 'POD_' + item.Task_ID + '_' + username + '.png',
                     "POD_DateTime": moment().tz('Singapore').format('YYYY-MM-DD HH:mm:ss'),
                     "Identity_Number": "",
+                    "User_ID": username,
                     "Image1_File": images[0] == null ? "" : images[0].base64,
                     "Image1_Name": images[0] == null ? "" : 'IMG_' + item.Task_ID + '_' + username + '_1.' + images[0].mimeType.split('/')[1],
                     "Image2_File": images[1] == null ? "" : images[1].base64,
@@ -284,12 +278,20 @@ export default function POD() {
                     "Image9_Name": images[8] == null ? "" : 'IMG_' + item.Task_ID + '_' + username + '_9.' + images[8].mimeType.split('/')[1],
                     "Image10_File": images[9] == null ? "" : images[9].base64,
                     "Image10_Name": images[9] == null ? "" : 'IMG_' + item.Task_ID + '_' + username + '_10.' + images[9].mimeType.split('/')[1],
-                }),
+                });
+            console.log('API_URL -->', API_URL);
+            console.log('payload -->', payload);
+
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: payload,
             });
             
             const json = await response.json();
-
-            
             // if ((json[0]['access']).toLowerCase() == 'success') {
             //     setSuccessVisible(true);
             // } else {
@@ -459,7 +461,7 @@ export default function POD() {
                             </Dialog>
                         </Portal>
                         <Portal>
-                            <Dialog visible={successVisible} dismissable={false}>
+                            <Dialog visible={successVisible} dismissable={flatListContainer}>
                                 <Dialog.Icon icon="check-circle" color="green" />
                                 <Dialog.Content>
                                     <Text variant="bodyLarge" style={styles.title}>
@@ -467,7 +469,10 @@ export default function POD() {
                                     </Text>
                                 </Dialog.Content>
                                 <Dialog.Actions>
-                                    <Button onPress={() => router.navigate('/(drawers)/(trucking)/home')}>
+                                    <Button onPress={() => {
+                                        setSuccessVisible(false);
+                                        router.navigate('/(drawers)/(trucking)/home')
+                                    }}>
                                         {i18n.t('done')}
                                     </Button>
                                 </Dialog.Actions>

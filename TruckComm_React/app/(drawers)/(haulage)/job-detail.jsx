@@ -19,7 +19,7 @@ export default function JobDetail() {
             task: 'Task',
             pickup: 'Pickup',
             delivery: 'Delivery',
-            launch: 'Launch',
+            launch: 'Open',
             job_number: 'Job Number',
             do_number: 'Delivery Order Number',
             address_copied: 'Address copied',
@@ -80,11 +80,11 @@ export default function JobDetail() {
         setVisible(true);
     };
 
-    const openMap = () => {
+    const openMap = (destination) => {
         const params = new URLSearchParams();
 
         if (Platform.OS === "ios") {
-            params.append("daddr", address);
+            params.append("daddr", destination);
             params.append("dirflg", "d");
             Linking.openURL("http://maps.apple.com/?" + params);
         } else {
@@ -121,35 +121,38 @@ export default function JobDetail() {
         const API_URL = process.env.EXPO_PUBLIC_API_PROTOCOL + '://' 
             + Web_Server + ':' + Port
             + process.env.EXPO_PUBLIC_API_ROOT_PATH + 'EditJobTripStatus';
-        console.log('JOBTRIP --->',item);    
+        console.log('API_URL --->',API_URL);    
         console.log('SELECT<ed status --> --->',statusCode);    
+        const body = {
+            "Auth_Token": Auth_Token,
+            "Server_Name": Database_Server,
+            "DB_Name": Database_Name,
+            "Task_ID": item.Task_ID,
+            "Message_Type": process.env.EXPO_PUBLIC_Haulage_Type,
+            "Status": statusCode,
+            "Pickup_Status": statusCode,
+            "Send_Notification": "T",
+            "Vehicle_Number": vehicle,
+            "Captured_DateTime": item.Assigned_DateTime,
+            "PLANTRIP_NO": item.PLANTRIP_NO,
+            "PLANSUBTRIP_SEQNO": item.PLST_SEQNO,
+            "Driver_Number": User_ID,
+            "Added_DateTime": moment().tz('Singapore').format('YYYY-MM-DD HH:mm:ss'),
+            "JOB_TYPE":process.env.EXPO_PUBLIC_Haulage_Type,
+            "User_ID": User_ID
+        }
+        console.log('REQUEST BODY --->',body);  
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                "Auth_Token": Auth_Token,
-                "Server_Name": Database_Server,
-                "DB_Name": Database_Name,
-                "Task_ID": item.Task_ID,
-                "Message_Type": process.env.EXPO_PUBLIC_Haulage_Type,
-                "Status": statusCode,
-                "Pickup_Status": statusCode,
-                "Send_Notification": "F",
-                "Vehicle_Number": vehicle,
-                "Captured_DateTime": item.Assigned_DateTime,
-                "PLANTRIP_NO": item.PLANTRIP_NO,
-                "PLANSUBTRIP_SEQNO": item.PLST_SEQNO,
-                "Driver_Number": User_ID,
-                "Added_DateTime": moment().tz('Singapore').format('YYYY-MM-DD HH:mm:ss'),
-                "JOB_TYPE":process.env.EXPO_PUBLIC_Haulage_Type,
-                "User_ID": User_ID
-            }),
+            body: JSON.stringify(body),
         });
 
-        const json = await response.json();
+        const json = await response.json(); 
+        console.log('RESPONSE --->',json);  
 
         if ((json[0]['access']).toLowerCase() == 'success') {
             const modifyItemDetails = [...itemDetails];
@@ -321,6 +324,9 @@ export default function JobDetail() {
                     }
                 />
             </List.Section>
+            <Button mode="outlined" onPress={() => openMap(pickupAdd)} style={styles.card}>
+                {i18n.t('launch') + ' Map'}
+            </Button>
             <Divider />
             <List.Section>
                 <List.Subheader>{i18n.t('delivery')}</List.Subheader>
@@ -334,8 +340,8 @@ export default function JobDetail() {
                     }
                 />
             </List.Section>  
-            <Button mode="outlined" onPress={() => openMap()} style={styles.card}>
-                {i18n.t('launch') + ' Google Maps'}
+            <Button mode="outlined" onPress={() => openMap(deliveryAdd)} style={styles.card}>
+                {i18n.t('launch') + ' Map'}
             </Button>
             <FlatList
                 data={itemDetails}

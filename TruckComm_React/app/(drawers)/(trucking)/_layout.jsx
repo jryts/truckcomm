@@ -5,6 +5,7 @@ import { I18n } from 'i18n-js';
 import { LanguageContext } from '../../_layout';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import * as Application from 'expo-application';
 import { useFocusEffect } from '@react-navigation/native';
 
 export default function HomeLayout() {
