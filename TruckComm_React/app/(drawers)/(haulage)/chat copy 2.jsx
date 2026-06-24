@@ -34,7 +34,7 @@ export default function chat() {
  
     const getMessages = async () => {
         try {
-            setLoading(true);
+            // setLoading(true);
             setisFetchingMsg(true);
 
             const username = await SecureStore.getItemAsync('User_ID');
@@ -67,7 +67,6 @@ export default function chat() {
             if(response.status === 200){
                 setMessages([]);
                 let json = await response.json();
-                
                 if ((json[0]["access"]).toLowerCase() == "success") {
                     json = json.slice(1);
 
@@ -87,12 +86,13 @@ export default function chat() {
                 }
             }
         } finally {
-            setLoading(false);
+            // setLoading(false);
             setisFetchingMsg(false);
         }
     };
 
     useEffect(() => {
+        getMessages();
 		const unsubscribe = messaging().onMessage(async remoteMessage => {
             console.log(remoteMessage);
             if (remoteMessage.data.TaskID == paramItem.Task_ID) {
@@ -114,13 +114,12 @@ export default function chat() {
     }, []);
 
     useEffect(() => {
-        getMessages();
         const interval = setInterval(() => {
-            getMessages();
-        }, 20000); // Refresh every 20 seconds
+           const msgs = getMessages();
+        }, 10000); // Refresh every 30 seconds
 
-        return () => clearInterval(interval);   
-    }, []);
+        return () => clearInterval(interval); // Cleanup on unmount
+    },[]);
 
     const sendMessages = async (messages) => {
         try {
@@ -216,7 +215,7 @@ export default function chat() {
                 listViewProps={{
                    refreshControl: (
                         <RefreshControl
-                            refreshing={isFetchingMsg}
+                            refreshing={false}
                             onRefresh={getMessages}
                             tintColor="#000" // iOS spinner color
                             colors={['#000']} // Android spinner color
@@ -228,7 +227,7 @@ export default function chat() {
                 // keyboardAvoidingViewProps={{ keyboardVerticalOffset: headerHeight }}
 
             />
-
+        
             </KeyboardAvoidingView>
         </SafeAreaView>
     );

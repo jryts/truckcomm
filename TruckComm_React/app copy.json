@@ -54,10 +54,7 @@
             "usesCleartextTraffic": true,
             "extraMavenRepos": [
               "../../node_modules/@notifee/react-native/android/libs"
-            ],
-            "compileSdkVersion": 34,
-            "targetSdkVersion": 34,
-            "minSdkVersion": 23
+            ]
           },
           "ios": {
             "useFrameworks": "static",
